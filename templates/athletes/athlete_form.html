@@ -1,0 +1,183 @@
+<!-- templates/athletes/athlete_form.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">{{ form_title }}</h1>
+    <a href="{% url 'athlete-list' %}" class="btn btn-secondary">Back to Roster</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {# Handle both Create & Update forms gracefully #}
+            {% with user_form=form2|default:form profile_form=profile_form|default:form %}
+
+            <!-- SECTION 1: User Details -->
+            <h4 class="form-section-header">User Details</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">{{ user_form.first_name.label }}</label>
+                    {{ user_form.first_name }}
+                    <div class="text-danger small">{{ user_form.first_name.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">{{ user_form.last_name.label }}</label>
+                    {{ user_form.last_name }}
+                    <div class="text-danger small">{{ user_form.last_name.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.email.id_for_label }}" class="form-label">{{ user_form.email.label }}</label>
+                    {{ user_form.email }}
+                    <div class="text-danger small">{{ user_form.email.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.gender.id_for_label }}" class="form-label">{{ user_form.gender.label }}</label>
+                    {{ user_form.gender }}
+                    <div class="text-danger small">{{ user_form.gender.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.birthday.id_for_label }}" class="form-label">{{ user_form.birthday.label }}</label>
+                    {{ user_form.birthday }}
+                    <div class="text-danger small">{{ user_form.birthday.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ user_form.image.id_for_label }}" class="form-label">{{ user_form.image.label }}</label>
+                    {{ user_form.image }}
+                    <div class="text-danger small">{{ user_form.image.errors }}</div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- SECTION 2: Profile Details -->
+            <h4 class="form-section-header">Profile Details</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ profile_form.team.id_for_label }}" class="form-label">{{ profile_form.team.label }}</label>
+                    {{ profile_form.team }}
+                    <div class="text-danger small">{{ profile_form.team.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ profile_form.contact_details.id_for_label }}" class="form-label">{{ profile_form.contact_details.label }}</label>
+                    {{ profile_form.contact_details }}
+                    <div class="text-danger small">{{ profile_form.contact_details.errors }}</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ profile_form.medical_history.id_for_label }}" class="form-label">{{ profile_form.medical_history.label }}</label>
+                {{ profile_form.medical_history }}
+                <div class="text-danger small">{{ profile_form.medical_history.errors }}</div>
+            </div>
+
+            <div class="form-check mb-3">
+                {{ profile_form.is_featured }}
+                <label for="{{ profile_form.is_featured.id_for_label }}" class="form-check-label">{{ profile_form.is_featured.label }}</label>
+                {% if profile_form.is_featured.help_text %}
+                <div class="form-text">{{ profile_form.is_featured.help_text }}</div>
+                {% endif %}
+            </div>
+
+            {% endwith %}
+
+            <hr class="my-4">
+
+            <!-- Form Buttons -->
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'athlete-list' %}" class="btn btn-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+$(function() {
+    // ✅ Initialize Select2 filters for admin
+    $('.select2-filter').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Select an option'
+    });
+
+    // ✅ Handle "Select All" checkbox
+    $('#selectAll').on('click', function() {
+        $('input[name="athlete_ids"]').prop('checked', $(this).prop('checked'));
+    });
+
+    // ✅ Live search functionality
+    const searchInput = $("#liveSearchInput");
+    const resultsContainer = $("#searchResultsContainer");
+
+    // Debounce function to delay search while typing
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Fetch live search results
+    const handleSearch = debounce(function() {
+        const query = searchInput.val().trim();
+
+        if (query.length > 0) {
+            fetch(`{% url 'live-search' %}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsContainer.empty(); // Clear old results
+
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(result => {
+                            const imageUrl = result.image_url || "{% static 'images/default_profile.png' %}";
+                            const resultItem = `
+                                <a href="${result.url}" class="list-group-item list-group-item-action d-flex align-items-center">
+                                    <img src="${imageUrl}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold">${result.name}</div>
+                                        <small class="text-muted">${result.role}</small>
+                                    </div>
+                                </a>`;
+                            resultsContainer.append(resultItem);
+                        });
+                    } else {
+                        resultsContainer.html('<span class="list-group-item">No results found</span>');
+                    }
+
+                    resultsContainer.addClass('active');
+                })
+                .catch(err => {
+                    console.error("Search error:", err);
+                    resultsContainer.html('<span class="list-group-item text-danger">Error fetching results</span>');
+                });
+        } else {
+            resultsContainer.removeClass('active').empty();
+        }
+    }, 300);
+
+    // Attach the debounced search
+    searchInput.on("input", handleSearch);
+
+    // ✅ Hide results when clicking outside
+    $(document).on('click', function(e) {
+        if (!searchInput.is(e.target) && !resultsContainer.is(e.target) && resultsContainer.has(e.target).length === 0) {
+            resultsContainer.removeClass('active').empty();
+        }
+    });
+});
+</script>
+{% endblock %}

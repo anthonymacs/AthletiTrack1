@@ -1,0 +1,14 @@
+<!-- athletitrack/templates/registration/signup.html -->
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<h2>Sign Up</h2>
+<!-- Don't forget enctype for file (image) uploads! -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+{% endblock %}

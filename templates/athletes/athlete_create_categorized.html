@@ -1,0 +1,28 @@
+<!-- templates/athletes/athlete_create_categorized.html -->
+{% extends "base.html" %}
+{% block content %}
+
+{% if show_details_form %}
+    <!-- ======== STEP 2: ENTER ATHLETE DETAILS ======== -->
+    <h2>Step 2: Add Athlete to <span class="text-primary">{{ selected_team_str }}</span></h2>
+    <form method="post" enctype="multipart/form-data" action="?sport={{ sport_id }}&campus={{ campus_id }}&gender={{ gender }}">
+        {% csrf_token %}
+        <p><strong>User Details:</strong></p>
+        {{ user_form.as_p }}
+        <hr>
+        <p><strong>Profile Details:</strong></p>
+        {{ profile_form.as_p }}
+        <button type="submit" class="btn btn-primary mt-3">Create Athlete</button>
+        <a href="{% url 'athlete-list' %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+{% else %}
+    <!-- ======== STEP 1: SELECT CATEGORY ======== -->
+    <h2>Step 1: Select Athlete's Category</h2>
+    <div class="card card-body">
+        <form method="get">
+            {{ filter_form.as_p }}
+            <button type="submit" class="btn btn-primary mt-3">Next: Enter Details</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

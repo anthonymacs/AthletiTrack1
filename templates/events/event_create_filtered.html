@@ -1,0 +1,33 @@
+<!-- templates/events/event_create_filtered.html -->
+{% extends "base.html" %}
+{% block content %}
+
+{% if show_event_form %}
+    <!-- ======== STEP 2: CREATE THE EVENT ======== -->
+    <h2>Step 2: Enter Event Details</h2>
+    <p class="alert alert-info">
+        All athletes from the selected category will be automatically added as participants.
+    </p>
+
+    <!-- The form's action must include the GET params to persist them -->
+    <form method="post" action="?sport={{ sport_id }}&campus={{ campus_id }}">
+        {% csrf_token %}
+        {{ event_form.as_p }}
+        <button type="submit" class="btn btn-primary">Create Event and Add Participants</button>
+        <a href="{% url 'event-list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+{% else %}
+    <!-- ======== STEP 1: SELECT THE CATEGORY ======== -->
+    <h2>Step 1: Select Participants by Category</h2>
+    <p>Choose a sport and campus. All athletes matching this category will be automatically added to the new event.</p>
+    <div class="card card-body">
+        <!-- This form uses GET to pass the selected filters back to this same URL -->
+        <form method="get">
+            {{ filter_form.as_p }}
+            <button type="submit" class="btn btn-primary mt-3">Next: Create Event</button>
+        </form>
+    </div>
+{% endif %}
+
+{% endblock %}

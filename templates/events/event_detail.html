@@ -1,0 +1,125 @@
+<!-- templates/events/event_detail.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Event Details: {{ event.name }}{% endblock %}
+
+{% block content %}
+
+<!-- Event Details Card -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h2 class="mb-0">{{ event.name }}</h2>
+        {% if user == event.coach_in_charge.user or user.role == 'ADMINISTRATOR' %}
+            <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
+                <a href="{% url 'event-edit' pk=event.pk %}" class="btn btn-warning btn-sm">Edit Event</a>
+                <a href="{% url 'event-delete' pk=event.pk %}" class="btn btn-danger btn-sm">Delete Event</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ event.location }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+            Starts: {{ event.start_time|date:"l, F d, Y, P" }}<br>
+            Ends: {{ event.end_time|date:"l, F d, Y, P" }}
+        </h6>
+        <p class="card-text mt-3">{{ event.description|linebreaks }}</p>
+    </div>
+</div>
+
+<!-- Participants List Card -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h3 class="mb-0">Participants ({{ participants.count }})</h3>
+        <div class="d-flex align-items-center gap-3 mt-2 mt-md-0">
+            {% if event.coach_in_charge %}
+                <div class="d-flex align-items-center">
+                    <span class="me-2 text-muted small">In Charge:</span>
+                    <a href="{{ event.coach_in_charge.get_absolute_url }}" class="text-decoration-none d-flex align-items-center">
+                        {% if event.coach_in_charge.user.image %}<img src="{{ event.coach_in_charge.user.image.url }}" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                        {% else %}<img src="{% static 'images/default_profile.png' %}" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">{% endif %}
+                        <span class="fw-bold">{{ event.coach_in_charge.user.get_full_name }}</span>
+                    </a>
+                </div>
+            {% endif %}
+            {% if event.coach_in_charge.user == user or user.role == 'ADMINISTRATOR' %}
+                <a href="{% url 'game-report' pk=event.pk %}" class="btn btn-primary btn-sm">Enter/View Game Report</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for athlete in participants %}
+            <a href="{{ athlete.get_absolute_url }}" class="list-group-item list-group-item-action d-flex align-items-center">
+                {% if athlete.user.image %}<img src="{{ athlete.user.image.url }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                {% else %}<img src="{% static 'images/default_profile.png' %}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">{% endif %}
+                {{ athlete.user.get_full_name }}
+            </a>
+        {% empty %}
+            <div class="list-group-item">No athletes are registered for this event.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Participant Roster Management (for authorized users) -->
+{% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+<div class="card mt-4 shadow-sm">
+    <div class="card-header"><h3>Manage Participant Roster</h3></div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="update_participants">
+            <p class="text-muted">Use this form to add or remove athletes from the event roster.</p>
+            <!-- Filter Form -->
+            <div class="card card-body mb-3 bg-light border">
+                <div class="row">
+                    <div class="col-md-10">
+                        <label for="team" class="form-label">Filter athletes by Team to make selection easier:</label>
+                        <select name="team" class="form-select select2-filter">
+                            <option value="">All Teams</option>
+                            {% for team in all_teams %}<option value="{{ team.id }}" {% if request.GET.team == team.id|stringformat:"s" %}selected{% endif %}>{{ team }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-info w-100" formmethod="get">Filter</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Participant Selection -->
+            <div class="mb-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllBtn">Select All Visible</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllBtn">Deselect All Visible</button>
+            </div>
+            <div id="participant-checkboxes" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                {{ participant_form.participants }}
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Update Roster</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-4"><a href="{% url 'event-list' %}" class="btn btn-secondary">Back to Event List</a></div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- UNIFIED SCRIPT BLOCK -->
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for the team filter
+        $('.select2-filter').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select a team to filter'
+        });
+
+        // Logic for Select/Deselect All buttons
+        const checkboxContainer = $('#participant-checkboxes');
+        $('#selectAllBtn').on('click', function() {
+            checkboxContainer.find('input[type="checkbox"]').prop('checked', true);
+        });
+        $('#deselectAllBtn').on('click', function() {
+            checkboxContainer.find('input[type="checkbox"]').prop('checked', false);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+<!-- templates/core/settings_dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Settings Management{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Settings Management</h1>
+
+<div class="row">
+    <!-- Add New Team Form Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">Add New Team</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Create a new team by combining a sport, campus, and gender.</p>
+                
+                <!-- THIS IS THE SINGLE, CORRECTED FORM -->
+                <form action="{% url 'team-add' %}" method="post">
+                    {% csrf_token %}
+
+                    <!-- Manually render each field for full control over styling -->
+                    <div class="mb-3">
+                        <label for="{{ team_form.sport.id_for_label }}" class="form-label">{{ team_form.sport.label }}</label>
+                        {{ team_form.sport }}
+                        {{ team_form.sport.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ team_form.campus.id_for_label }}" class="form-label">{{ team_form.campus.label }}</label>
+                        {{ team_form.campus }}
+                        {{ team_form.campus.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ team_form.gender.id_for_label }}" class="form-label">{{ team_form.gender.label }}</label>
+                        {{ team_form.gender }}
+                        {{ team_form.gender.errors }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-2">Create Team</button>
+                </form>
+                <!-- END OF FORM -->
+
+            </div>
+        </div>
+        <!-- You could add similar cards for creating new Sports and Campuses here -->
+    </div>
+
+    <!-- List of Existing Teams -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><h4 class="mb-0">Existing Teams</h4></div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sport</th>
+                            <th>Campus</th>
+                            <th>Gender</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                            <tr>
+                                <td>{{ team.sport.name }}</td>
+                                <td>{{ team.campus.name }}</td>
+                                <td>{{ team.get_gender_display }}</td>
+                                <td class="text-end">
+                                    <!-- Add Edit/Delete buttons here in the future -->
+                                    <button class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No teams have been created yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // This script initializes the searchable dropdowns in the "Add New Team" form
+        $('.select2-filter').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select an option'
+        });
+    });
+</script>
+{% endblock %}

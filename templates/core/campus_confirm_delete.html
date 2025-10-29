@@ -1,0 +1,25 @@
+<!-- templates/core/campus_confirm_delete.html -->
+{% extends "base.html" %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm" style="max-width: 500px; margin: auto;">
+    <div class="card-header">
+        <h3 class="mb-0">Confirm Deletion</h3>
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete the campus: <strong>"{{ object.name }}"</strong>?</p>
+        <p class="text-danger">
+            <strong>Warning:</strong> Deleting this campus will also remove it from any teams that are based here. This action cannot be undone.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'campus-list' %}" class="btn btn-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!-- templates/organization/team_list.html -->
+{% extends "base.html" %}
+{% block title %}Manage Teams{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Teams</h1>
+    <div>
+        <a href="{% url 'team-add' %}" class="btn btn-primary">+ Add New Team</a>
+        <a href="{% url 'settings-dashboard' %}" class="btn btn-secondary">Back to Settings</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Team Name</th>
+                        <th>Sport</th>
+                        <th>Campus</th>
+                        <th>Gender</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td><strong>{{ team }}</strong></td>
+                        <td>{{ team.sport.name }}</td>
+                        <td>{{ team.campus.name }}</td>
+                        <td>{{ team.get_gender_display }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'team-edit' pk=team.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'team-delete' pk=team.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No teams have been created yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,270 @@
+<!-- templates/athletes/athlete_list.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Athlete Roster{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Athlete Roster</h1>
+    <!-- Show "Add" button only to Coaches and Admins -->
+    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+    <div>
+        {% if user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'athlete-bulk-filtered' %}" class="btn btn-primary">+ Add Athletes</a>
+        {% elif user.role == 'COACH' %}
+            <a href="{% url 'athlete-bulk-filtered' %}?team={{ user.coach.team.id }}" class="btn btn-primary">+ Add Athletes to My Team</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!--
+    The filter form is now only shown to Admins, as coaches and athletes
+    will already have their views automatically filtered.
+-->
+{% if user.role == 'ADMINISTRATOR' %}
+<form method="get" class="card card-body mb-4">
+    <div class="row g-3">
+        <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label">Filter by Sport</label>
+            <select name="sport" class="form-select select2-filter">
+                <option value="">All Sports</option>
+                {% for sport in sports %}
+                    <option value="{{ sport.id }}" {% if request.GET.sport == sport.id|stringformat:"s" %}selected{% endif %}>
+                        {{ sport.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label">Filter by Campus</label>
+            <select name="campus" class="form-select select2-filter">
+                <option value="">All Campuses</option>
+                {% for campus in campuses %}
+                    <option value="{{ campus.id }}" {% if request.GET.campus == campus.id|stringformat:"s" %}selected{% endif %}>
+                        {{ campus.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label">Filter by Coach</label>
+            <select name="coach" class="form-select select2-filter">
+                <option value="">All Coaches</option>
+                {% for coach in coaches %}
+                    <option value="{{ coach.pk }}" {% if request.GET.coach == coach.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ coach.user.get_full_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label">Filter by Gender</label>
+            <select name="gender" class="form-select">
+                <option value="">All Genders</option>
+                {% for value, label in genders %}
+                    <option value="{{ value }}" {% if request.GET.gender == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 text-end">
+            <a href="{% url 'athlete-list' %}" class="btn btn-secondary">Clear</a>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+
+
+<!-- Roster Table with Bulk Actions -->
+<form method="post" class="mb-4">
+    {% csrf_token %}
+
+    <!-- Show bulk delete only to authorized users -->
+    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button type="submit" 
+                    class="btn btn-danger btn-sm"
+                    onclick="return confirm('Are you sure you want to delete the selected athletes?');">
+                <i class="bi bi-trash"></i> Delete Selected
+            </button>
+        </div>
+    {% endif %}
+
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle text-nowrap">
+            <thead class="table-dark">
+                <tr>
+                    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+                        <th><input type="checkbox" id="selectAll"></th>
+                    {% endif %}
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Team</th>
+                    <th>Coach</th>
+                    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+                        <th class="text-end">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for athlete in athletes %}
+                <tr>
+                    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+                        <td><input type="checkbox" name="athlete_ids" value="{{ athlete.user.pk }}"></td>
+                    {% endif %}
+
+                    <!-- Athlete Image -->
+                    <td>
+                        <img src="{% if athlete.user.image %}{{ athlete.user.image.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" 
+                             alt="Athlete Image"
+                             class="rounded-circle border"
+                             style="width: 40px; height: 40px; object-fit: cover;">
+                    </td>
+
+                    <!-- Athlete Name -->
+                    <td>
+                        <a href="{{ athlete.get_absolute_url }}" class="fw-bold text-decoration-none">
+                            {{ athlete.user.get_full_name }}
+                        </a>
+                    </td>
+
+                    <td>{{ athlete.user.age|default:"N/A" }}</td>
+                    <td>{{ athlete.user.get_gender_display }}</td>
+                    <td>{{ athlete.team|default:"N/A" }}</td>
+
+                    <!-- Coach -->
+                    <td>
+                        {% if athlete.coach %}
+                            <a href="{{ athlete.coach.get_absolute_url }}" 
+                               title="Coach: {{ athlete.coach.user.get_full_name }}">
+                                {% if athlete.coach.user.image %}
+                                    <img src="{{ athlete.coach.user.image.url }}" 
+                                         class="rounded-circle border"
+                                         style="width: 35px; height: 35px; object-fit: cover;">
+                                {% else %}
+                                    <span class="text-muted small">{{ athlete.coach.user.get_full_name }}</span>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">N/A</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Actions -->
+                    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+                    <td class="text-end">
+                        <a href="{% url 'athlete-edit' pk=athlete.pk %}" 
+                           class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a href="{% url 'athlete-delete' pk=athlete.pk %}" 
+                           class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        No athletes found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function() {
+    // ✅ Initialize Select2 filters for admin
+    $('.select2-filter').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Select an option'
+    });
+
+    // ✅ Handle "Select All" checkbox
+    $('#selectAll').on('click', function() {
+        $('input[name="athlete_ids"]').prop('checked', $(this).prop('checked'));
+    });
+
+    // ✅ Live search functionality
+    const searchInput = $("#liveSearchInput");
+    const resultsContainer = $("#searchResultsContainer");
+
+    // Debounce function to delay search while typing
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Fetch live search results
+    const handleSearch = debounce(function() {
+        const query = searchInput.val().trim();
+
+        if (query.length > 0) {
+            fetch(`{% url 'live-search' %}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsContainer.empty(); // Clear old results
+
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(result => {
+                            const imageUrl = result.image_url || "{% static 'images/default_profile.png' %}";
+                            const resultItem = `
+                                <a href="${result.url}" class="list-group-item list-group-item-action d-flex align-items-center">
+                                    <img src="${imageUrl}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold">${result.name}</div>
+                                        <small class="text-muted">${result.role}</small>
+                                    </div>
+                                </a>`;
+                            resultsContainer.append(resultItem);
+                        });
+                    } else {
+                        resultsContainer.html('<span class="list-group-item">No results found</span>');
+                    }
+
+                    resultsContainer.addClass('active');
+                })
+                .catch(err => {
+                    console.error("Search error:", err);
+                    resultsContainer.html('<span class="list-group-item text-danger">Error fetching results</span>');
+                });
+        } else {
+            resultsContainer.removeClass('active').empty();
+        }
+    }, 300);
+
+    // Attach the debounced search
+    searchInput.on("input", handleSearch);
+
+    // ✅ Hide results when clicking outside
+    $(document).on('click', function(e) {
+        if (!searchInput.is(e.target) && !resultsContainer.is(e.target) && resultsContainer.has(e.target).length === 0) {
+            resultsContainer.removeClass('active').empty();
+        }
+    });
+});
+</script>
+{% endblock %}

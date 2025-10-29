@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Coach Profile: {{ coach.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<!-- Coach Profile Card -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Coach Profile</h2>
+        {% if user == coach.user or user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'coach-edit' pk=coach.pk %}" class="btn btn-warning">Edit Profile</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                {% if coach.user.image %}
+                    <img src="{{ coach.user.image.url }}" class="img-fluid rounded-circle mb-3" alt="{{ coach.user.get_full_name }}">
+                {% else %}
+                    <img src="{% static 'images/default_profile.png' %}" class="img-fluid rounded-circle mb-3" alt="Default Profile">
+                {% endif %}
+            </div>
+            <div class="col-md-9">
+                <h3>{{ coach.user.get_full_name }}</h3>
+                <p><strong>Username:</strong> {{ coach.user.username }}</p>
+                <p><strong>Email:</strong> {{ coach.user.email }}</p>
+                <p><strong>Contact Number:</strong> {{ coach.contact_number|default:"N/A" }}</p>
+                <p><strong>Age:</strong> {{ coach.user.age|default:"N/A" }}</p> <!-- ADD THIS LINE -->
+                <p><strong>Gender:</strong> {{ coach.user.get_gender_display|default:"N/A" }}</p>
+                <p><strong>Team in Charge:</strong> {{ coach.team|default:"Not assigned" }}</p>
+                <!--<p><strong>Primary Sport:</strong> {{ coach.sport.name|default:"N/A" }}</p>-->
+                <!--<p><strong>Primary Campus:</strong> {{ coach.campus.name|default:"N/A" }}</p>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Athletes Card -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Assigned Athletes</h3>
+        {% if user == coach.user or user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'athlete-bulk-filtered' %}?team={{ coach.team.id }}" class="btn btn-sm btn-primary">
+                + Add Athletes to Team
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="list-group list-group-flush">
+        {% for athlete in assigned_athletes %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ athlete.get_absolute_url }}" class="d-flex align-items-center text-decoration-none text-dark">
+                    {% if athlete.user.image %}
+                        <img src="{{ athlete.user.image.url }}" alt="{{ athlete.user.get_full_name }}"
+                             class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile"
+                             class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                    {% endif %}
+                    {{ athlete.user.get_full_name }}
+                </a>
+
+                {% if user == coach.user or user.role == 'ADMINISTRATOR' %}
+                    <div class="ms-3">
+                        <a href="{% url 'athlete-edit' pk=athlete.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'athlete-delete' pk=athlete.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="list-group-item text-muted text-center">
+                This coach has no athletes assigned to them.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- Back Button -->
+<div class="mt-4">
+    <a href="{% url 'coach-list' %}" class="btn btn-secondary">Back to Coach Roster</a>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+<!-- templates/events/game_report.html -->
+{% extends "base.html" %}
+{% load static custom_filters %}
+
+{% block title %}Game Report: {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2>Game Report</h2>
+        <h4 class="text-primary">{{ event.name }}</h4>
+        <h6 class="text-muted">{{ event.start_time|date:"F d, Y" }}</h6>
+    </div>
+    <a href="{% url 'event-detail' pk=event.pk %}" class="btn btn-secondary">Back to Event Details</a>
+</div>
+
+<!-- Scoreboard / Event Outcome Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header"><h4 class="mb-0">Scoreboard</h4></div>
+    <div class="card-body">
+        <p class="text-muted small">Enter the final score here to automatically record a "Win" or "Loss" for all participants.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row align-items-end">
+                <div class="col-md-5">
+                    <label for="{{ outcome_form.our_score.id_for_label }}" class="form-label">{{ outcome_form.our_score.label }}</label>
+                    {{ outcome_form.our_score }}
+                </div>
+                <div class="col-md-5">
+                    <label for="{{ outcome_form.opponent_score.id_for_label }}" class="form-label">{{ outcome_form.opponent_score.label }}</label>
+                    {{ outcome_form.opponent_score }}
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" name="save_outcome" class="btn btn-primary w-100">Save Score</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Player Statistics Card -->
+<div class="card shadow-sm">
+    <div class="card-header"><h4 class="mb-0">Individual Player Statistics</h4></div>
+    <div class="card-body">
+        {% if participants %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="min-width: 200px;">Participant</th>
+                            {% if first_form %}
+                                {% for field in first_form %}
+                                    <th class="text-center" style="min-width: 120px;">{{ field.label }}</th>
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for athlete in participants %}
+                        <tr>
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    {% if athlete.user.image %}<img src="{{ athlete.user.image.url }}" class="rounded-circle me-2" style="width:30px;height:30px;object-fit:cover;">
+                                    {% else %}<img src="{% static 'images/default_profile.png' %}" class="rounded-circle me-2" style="width:30px;height:30px;object-fit:cover;">{% endif %}
+                                    <strong>{{ athlete.user.get_full_name }}</strong>
+                                </div>
+                            </td>
+                            {% with form=participant_forms|get_item:athlete.pk %}
+                                {% for field in form %}
+                                    <td>{{ field }}</td>
+                                {% endfor %}
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if user == event.coach_in_charge.user or user.role == 'ADMINISTRATOR' %}
+            <div class="text-end mt-3">
+                <button type="submit" name="save_player_stats" class="btn btn-primary">Save Player Stats</button>
+            </div>
+            {% endif %}
+        </form>
+        {% else %}
+            <p class="mb-0">There are no participants in this event to create a report for.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,87 @@
+<!-- templates/athletes/athlete_bulk_filtered.html -->
+{% extends "base.html" %}
+{% block title %}Bulk Add Athletes{% endblock %}
+{% block content %}
+
+{% if show_formset %}
+    <!-- ======== STEP 2: SHOW THE FORMSET ======== -->
+    <h2>Step 2: Add Athletes for <span class="text-primary">{{ selected_sport.name }} - {{ selected_campus.name }}</span></h2>
+    <p>Fill out the rows for each athlete you want to add. Use the button at the bottom to add more rows.</p>
+
+    <!-- The action must include the GET params so they persist if the form is invalid -->
+    <form method="post" enctype="multipart/form-data" action="?sport={{ selected_sport.id }}&campus={{ selected_campus.id }}">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody id="formset-container">
+                {% for form in formset %}
+                <tr class="form-row">
+                    <td>{{ form.first_name }}</td>
+                    <td>{{ form.last_name }}</td>
+                    <td>{{ form.email }}</td>
+                    <td>{{ form.gender }}</td>
+                    <td>{{ form.image }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Template for cloning new rows -->
+        <table style="display: none;"><tbody id="empty-form-template">
+            <tr class="form-row">
+                <td>{{ formset.empty_form.first_name }}</td>
+                <td>{{ formset.empty_form.last_name }}</td>
+                <td>{{ formset.empty_form.email }}</td>
+                <td>{{ formset.empty_form.gender }}</td>
+                <td>{{ formset.empty_form.image }}</td>
+            </tr>
+        </tbody></table>
+
+        <button type="button" id="add-form-button" class="btn btn-success">+ Add Another Row</button>
+        <hr>
+        <button type="submit" class="btn btn-primary">Save Athletes</button>
+        <a href="{% url 'athlete-list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+{% else %}
+    <!-- ======== STEP 1: SHOW THE FILTER FORM ======== -->
+    <h2>Step 1: Select a Category</h2>
+    <p>Choose a sport and campus to add athletes to.</p>
+    <div class="card card-body">
+        <!-- This form uses GET to pass params to this same URL -->
+        <form method="get">
+            {{ filter_form.as_p }}
+            <button type="submit" class="btn btn-primary mt-3">Next: Add Athletes</button>
+        </form>
+    </div>
+{% endif %}
+
+<script>
+// This script only needs to run if the formset is being shown
+{% if show_formset %}
+document.addEventListener('DOMContentLoaded', function() {
+    const addFormButton = document.getElementById('add-form-button');
+    const formsetContainer = document.getElementById('formset-container');
+    const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+
+    addFormButton.addEventListener('click', function() {
+        let currentFormCount = parseInt(totalFormsInput.value);
+        let newFormHtml = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+        formsetContainer.insertAdjacentHTML('beforeend', newFormHtml);
+        totalFormsInput.value = currentFormCount + 1;
+    });
+});
+{% endif %}
+</script>
+{% endblock %}

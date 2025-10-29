@@ -1,0 +1,52 @@
+<!-- templates/athletes/manage_stats_form.html -->
+{% extends "base.html" %}
+
+{% block title %}Manage Stats for {{ athlete.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2>Manage Annual Stats</h2>
+        <h4 class="text-primary">{{ athlete.user.get_full_name }}</h4>
+        <h5 class="text-muted">{{ athlete.team.sport.name|default:"Unassigned Sport" }}</h5>
+    </div>
+    <a href="{% url 'athlete-detail' pk=athlete.pk %}" class="btn btn-secondary">Back to Profile</a>
+</div>
+
+<p>Enter or update the performance values for the selected year. The form is pre-populated with any existing data. Leave fields blank to ignore them or clear existing values.</p>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Render the 'year' field first -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="{{ form.year.id_for_label }}" class="form-label fw-bold">{{ form.year.label }}</label>
+                    {{ form.year }}
+                </div>
+            </div>
+            <hr>
+
+            <!--
+                This section now dynamically loops through whatever fields
+                the ScorecardForm created for the athlete's specific sport.
+            -->
+            <div class="row">
+                {% for field in form %}
+                    {% if field.name != 'year' %} {# Don't render the year field again #}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Save Statistics</button>
+            <a href="{% url 'athlete-detail' pk=athlete.pk %}" class="btn btn-outline-secondary mt-3">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

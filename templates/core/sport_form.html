@@ -1,0 +1,12 @@
+<!-- templates/core/sport_form.html -->
+{% extends "base.html" %}
+{% block title %}Add Sport{% endblock %}
+{% block content %}
+<h2>Add New Sport</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save Sport</button>
+    <a href="{% url 'sport-list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

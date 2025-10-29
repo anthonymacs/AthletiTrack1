@@ -1,0 +1,111 @@
+<!-- templates/athletes/athlete_bulk_form.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<h2>{{ form_title }}</h2>
+
+{% if selected_sport or selected_campus %}
+<div class="alert alert-info">
+    <p class="mb-0">You are adding athletes with the following pre-selected values:</p>
+    <ul class="mb-0">
+        {% if selected_sport %}<li><strong>Sport:</strong> {{ selected_sport.name }}</li>{% endif %}
+        {% if selected_campus %}<li><strong>Campus:</strong> {{ selected_campus.name }}</li>{% endif %}
+    </ul>
+</div>
+{% else %}
+<p>Fill out the rows for each athlete you want to add. Use the button at the bottom to add more rows.</p>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formset.management_form }} <!-- This is required! -->
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Image</th>
+                {% if not hide_campus_col %}<th>Campus</th>{% endif %}
+                {% if not hide_sport_col %}<th>Sport</th>{% endif %}
+            </tr>
+        </thead>
+        <!-- This new tbody tag will be our target for adding new rows -->
+        <tbody id="formset-container">
+            {% for form in formset %}
+            <tr class="form-row">
+                <td>{{ form.first_name }}</td>
+                <td>{{ form.last_name }}</td>
+                <td>{{ form.email }}</td>
+                <td>{{ form.image }}</td>
+
+                {% if not hide_campus_col %}
+                    <td>{{ form.campus }}</td>
+                {% else %}
+                    <!-- Hide the field but ensure its value is submitted -->
+                    <td style="display:none;">{{ form.campus }}</td>
+                {% endif %}
+                {% if not hide_sport_col %}
+                    <td>{{ form.sport }}</td>
+                {% else %}
+                    <td style="display:none;">{{ form.sport }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- We will use this empty row as a template to clone -->
+    <table style="display: none;">
+        <tbody id="empty-form-template">
+            <tr class="form-row">
+                <td>{{ formset.empty_form.first_name }}</td>
+                <td>{{ formset.empty_form.last_name }}</td>
+                <td>{{ formset.empty_form.email }}</td>
+                <td>{{ formset.empty_form.image }}</td>
+                {% if not hide_campus_col %}
+                    <td>{{ formset.empty_form.campus }}</td>
+                {% else %}
+                    <td style="display:none;">{{ formset.empty_form.campus }}</td>
+                {% endif %}
+                {% if not hide_sport_col %}
+                    <td>{{ formset.empty_form.sport }}</td>
+                {% else %}
+                    <td style="display:none;">{{ formset.empty_form.sport }}</td>
+                {% endif %}
+        </tbody>
+    </table>
+
+    <!-- The button to trigger the JavaScript -->
+    <button type="button" id="add-form-button" class="btn btn-success">+ Add Another Athlete</button>
+    <hr>
+    <button type="submit" class="btn btn-primary">Save Athletes</button>
+    <a href="{% url 'athlete-list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addFormButton = document.getElementById('add-form-button');
+    const formsetContainer = document.getElementById('formset-container');
+    const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+
+    addFormButton.addEventListener('click', function() {
+        // Get the current number of forms
+        let currentFormCount = parseInt(totalFormsInput.value);
+
+        // Create a new row from the template
+        let newFormHtml = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+
+        // Append the new row to the container
+        formsetContainer.insertAdjacentHTML('beforeend', newFormHtml);
+
+        // Increment the total forms count in the management form
+        totalFormsInput.value = currentFormCount + 1;
+    });
+});
+</script>
+{% endblock %}

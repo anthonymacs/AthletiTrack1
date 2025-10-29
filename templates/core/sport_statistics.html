@@ -1,0 +1,39 @@
+<!-- templates/core/sport_statistics.html -->
+{% extends "base.html" %}
+{% block title %}Manage Statistics for {{ sport.name }}{% endblock %}
+{% block content %}
+<h1 class="mb-4">Manage Statistics for <span class="text-primary">{{ sport.name }}</span></h1>
+<div class="row">
+    <!-- Add New Statistic Form -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><h4 class="mb-0">Add New Statistic</h4></div>
+            <div class="card-body">
+                <form action="{% url 'statistic-add' %}" method="post">
+                    {% csrf_token %}
+                    {{ statistic_form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100 mt-2">Save Statistic</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- List of Existing Statistics for this Sport -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><h4 class="mb-0">Existing Statistics</h4></div>
+            <div class="list-group list-group-flush">
+                {% for stat in statistics %}
+                    <div class="list-group-item">
+                        <strong>{{ stat.name }}</strong> (<code>{{ stat.short_name }}</code>)
+                        <!-- Add Edit/Delete buttons here later -->
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">No statistics have been defined for this sport yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<a href="{% url 'sport-list' %}" class="btn btn-secondary">Back to All Sports</a>
+{% endblock %}

@@ -1,0 +1,58 @@
+<!-- templates/registration/login.html -->
+{% extends "base.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2 class="mb-4">Welcome Back!</h2>
+
+    <!-- This form now renders its fields manually for better styling -->
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Render any non-field errors at the top -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Username Field -->
+        <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" placeholder="Enter your username">
+            {% if form.username.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.username.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control" placeholder="Enter your password">
+            {% if form.password.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-lg">Log In</button>
+    </form>
+    <!--
+    <div class="text-center mt-4">
+        <small class="text-muted">
+            Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+        </small>
+    </div>-->
+</div>
+{% endblock %}

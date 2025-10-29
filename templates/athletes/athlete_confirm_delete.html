@@ -1,0 +1,10 @@
+<!-- templates/athletes/athlete_confirm_delete.html -->
+{% extends "base.html" %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to delete "{{ object.user.get_full_name }}"?</p>
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'athlete-list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

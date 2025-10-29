@@ -1,0 +1,53 @@
+<!-- templates/coaches/coach_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ form_title }}</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!--
+      This logic handles the different form combinations passed from the views.
+    -->
+
+    <!--
+      For the UPDATE view, 'form2' (the UserForm) will exist.
+      The main 'form' will be the CoachProfileForm.
+    -->
+    {% if form2 %}
+        <p><strong>User Details:</strong></p>
+        {{ form2.as_p }}
+        <hr>
+        <p><strong>Profile Details:</strong></p>
+        {{ form.as_p }}
+    {% endif %}
+
+
+    <!--
+      For the CREATE view, 'profile_form' will exist.
+      The main 'form' will be the CoachUserForm.
+    -->
+    {% if profile_form %}
+        <p><strong>User Details:</strong></p>
+        {{ form.as_p }}
+        <hr>
+        <p><strong>Profile Details:</strong></p>
+        {{ profile_form.as_p }}
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+    <a href="{% url 'coach-list' %}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // This will find the "Team" dropdown and make it searchable.
+        $('.select2-filter').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select a team'
+        });
+    });
+</script>
+{% endblock %}

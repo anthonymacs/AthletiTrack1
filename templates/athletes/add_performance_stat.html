@@ -1,0 +1,91 @@
+<!-- templates/athletes/add_performance_stat.html -->
+{% extends "base.html" %}
+
+{% block title %}Manage Stats for {{ athlete.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Header section -->
+        <div class="d-flex align-items-center mb-4">
+            {% if athlete.user.image %}
+                <img src="{{ athlete.user.image.url }}" class="rounded-circle me-3" style="width: 75px; height: 75px; object-fit: cover;" alt="{{ athlete.user.get_full_name }}">
+            {% endif %}
+            <div>
+                <h2 class="mb-0">Manage Performance Statistics</h2>
+                <p class="lead mb-0">For {{ athlete.user.get_full_name }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Add New Stat Form -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add New Statistic</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.statistic_name.id_for_label }}" class="form-label">{{ form.statistic_name.label }}</label>
+                        {{ form.statistic_name }}
+                        <small class="form-text text-muted">{{ form.statistic_name.help_text }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.value.id_for_label }}" class="form-label">{{ form.value.label }}</label>
+                        {{ form.value }}
+                        <small class="form-text text-muted">{{ form.value.help_text }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.year.id_for_label }}" class="form-label">{{ form.year.label }}</label>
+                        {{ form.year }}
+                        <small class="form-text text-muted">{{ form.year.help_text }}</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Save Statistic</button>
+                        <a href="{% url 'athlete-detail' pk=athlete.pk %}" class="btn btn-secondary">Done / Back to Profile</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Existing Stats Table -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Existing Statistics</h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                            <!-- Optional: Add an actions column later if you build an edit feature -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in existing_stats %}
+                        <tr>
+                            <td>{{ stat.year }}</td>
+                            <td>{{ stat.statistic_name }}</td>
+                            <td>{{ stat.value }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No performance statistics have been recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

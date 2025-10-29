@@ -1,0 +1,373 @@
+/* ======================================================
+   STATIC/CSS/STYLE.CSS
+   AthletiTrack UI Stylesheet
+   Organized & Cleaned by ChatGPT (GPT-5)
+====================================================== */
+
+/* ======================================================
+   1. CORE VARIABLES & TYPOGRAPHY
+====================================================== */
+:root {
+    --primary-accent: #0d6efd;
+    --danger-red: #840505;
+    --warning-yellow: #ffc107;
+    --font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f4f7f9;
+    font-family: var(--font-family);
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+}
+
+/* ======================================================
+   2. NAVIGATION BAR
+====================================================== */
+.navbar-custom {
+    background-color: var(--danger-red);
+}
+
+/* Brand */
+.navbar-custom .navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #fff;
+}
+.navbar-custom .navbar-brand:hover {
+    color: var(--warning-yellow);
+}
+
+/* Nav Links */
+.navbar-custom .nav-link {
+    color: #fff;
+    transition: color 0.2s ease;
+}
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link:focus,
+.navbar-custom .nav-link.active {
+    color: var(--warning-yellow);
+}
+
+/* Dropdown menu */
+.navbar-custom .dropdown-menu {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.navbar-custom .dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Profile picture in navbar */
+.navbar-custom .navbar-nav img {
+    border: 2px solid #fff;
+}
+
+/* Search bar */
+#liveSearchInput {
+    max-width: 200px;
+    font-size: 0.9rem;
+}
+
+/* Search Results */
+#searchResultsContainer {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+#searchResultsContainer.active {
+    display: block;
+}
+
+/* Navbar Responsive Tweaks */
+@media (max-width: 992px) {
+    #liveSearchInput {
+        max-width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+@media (max-width: 768px) {
+    .navbar-custom .nav-link { padding: 0.5rem 1rem; }
+}
+@media (max-width: 480px) {
+    .navbar-custom .navbar-brand { font-size: 1rem; }
+    .navbar-custom .nav-link { font-size: 0.85rem; }
+}
+
+/* ======================================================
+   3. AUTH (Login/Signup)
+====================================================== */
+.auth-container {
+    max-width: 450px;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    background-color: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    border-top: 4px solid var(--primary-accent);
+}
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #343a40;
+}
+
+/* ======================================================
+   4. FORMS
+====================================================== */
+form label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.form-control, .form-select {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
+.helptext {
+    font-size: 0.875em;
+    color: #6c757d;
+}
+.errorlist {
+    color: #dc3545;
+    font-size: 0.875em;
+}
+
+/* Section headers in forms */
+.form-section-header {
+    font-size: 1.25rem;
+    color: var(--primary-accent);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* ======================================================
+   5. DASHBOARD HEADER
+====================================================== */
+.d-flex.justify-content-between {
+    background: linear-gradient(135deg, var(--danger-red), #f00303bd);
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.d-flex.justify-content-between h1 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+.d-flex.justify-content-between a.btn {
+    border-radius: 50px;
+    transition: 0.3s;
+}
+.d-flex.justify-content-between a.btn:hover {
+    background-color: #0dcaf0;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+/* ======================================================
+   6. CARDS & TABLES
+====================================================== */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Unified Card Header Styling */
+.card-header {
+    background-color: var(--danger-red);
+    color: #fff !important;
+    border-bottom: 3px solid #c42b2b;
+    padding: 0.75rem 1rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+.card-header h2, .card-header h3, .card-header h4, .card-header h5 {
+    color: #fff !important;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Buttons inside headers */
+.card-header .btn-warning {
+    color: #212529;
+    background-color: #ffc107;
+}
+.card-header .btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+/* Table Styling */
+.table th {
+    font-size: 0.9rem;
+    font-weight: 600;
+    background-color: #f8f9fa;
+    text-transform: uppercase;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* ======================================================
+   7. HERO BANNER
+====================================================== */
+.hero-banner {
+    position: relative;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.hero-banner .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: fadeSlideshow 20s infinite;
+}
+.hero-banner .slide:nth-child(1) { background-image: url("/static/images/bg1.jpg"); animation-delay: 0s; }
+.hero-banner .slide:nth-child(2) { background-image: url("/static/images/bg2.jpg"); animation-delay: 5s; }
+.hero-banner .slide:nth-child(3) { background-image: url("/static/images/bg3.jpg"); animation-delay: 10s; }
+.hero-banner .slide:nth-child(4) { background-image: url("/static/images/bg4.jpg"); animation-delay: 15s; }
+
+.hero-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(32,33,35,0.35);
+    z-index: 2;
+}
+.hero-banner .hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 800px;
+    padding: 20px;
+}
+.hero-banner h1 { font-size: 2.5rem; font-weight: 700; }
+.hero-banner p { font-size: 1.2rem; }
+
+@keyframes fadeSlideshow {
+    0%,30%,100% { opacity: 0; }
+    5%,25% { opacity: 1; }
+}
+
+/* Hero Responsive */
+@media (max-width: 992px) { .hero-banner { height: 250px; } }
+@media (max-width: 576px) { .hero-banner { height: 200px; } }
+
+/* ======================================================
+   8. EVENT GRID LAYOUT
+====================================================== */
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+.event-grid .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.event-grid .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+.event-header {
+    background-color: #b70707;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+}
+.event-header .card-title,
+.event-header .card-subtitle {
+    color: #fff;
+}
+.event-body {
+    background-color: var(--warning-yellow);
+    padding: 1rem;
+}
+
+/* Event Responsive */
+@media (max-width: 992px) { .event-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 576px) { .event-grid { grid-template-columns: 1fr; } }
+
+/* ======================================================
+   9. RECENT ATHLETES GRID
+====================================================== */
+.recent-athletes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.recent-athletes .card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+@media (max-width: 992px) { .recent-athletes { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 576px) { .recent-athletes { grid-template-columns: repeat(2, 1fr); } }
+
+/* ======================================================
+   10. BUTTONS
+====================================================== */
+.btn-primary {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.btn-primary:hover {
+    background-color: #004080;
+    border-color: #004080;
+}
+.btn-custom {
+    background: var(--primary-accent);
+    color: #fff;
+    border-radius: 25px;
+    padding: 8px 20px;
+    transition: 0.3s;
+}
+.btn-custom:hover {
+    background: #0056b3;
+}

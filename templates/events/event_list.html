@@ -1,0 +1,62 @@
+<!-- templates/events/event_list.html -->
+{% extends "base.html" %}
+
+{% block title %}Event Schedule{% endblock %}
+
+{% block content %}
+
+<!-- This is the new, combined header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Event Schedule</h1>
+    <!-- The button is visible only to authorized roles -->
+    {% if user.role == 'COACH' or user.role == 'ADMINISTRATOR' %}
+        <div>
+            {% if user.role == 'ADMINISTRATOR' %}
+                <!-- Administrators see the generic link that takes them to Step 1 -->
+                <a href="{% url 'event-schedule' %}" class="btn btn-primary">+ Schedule Events</a>
+            
+            {% elif user.role == 'COACH' and user.coach.team %}
+                <!--
+                    Coaches see a special link that pre-selects their own team,
+                    taking them directly to Step 2.
+                    The link is only shown if the coach is assigned to a team.
+                -->
+                <a href="{% url 'event-schedule' %}?team={{ user.coach.team.id }}" class="btn btn-primary">+ Schedule Events for My Team</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- NEW CARD LAYOUT -->
+<div class="event-grid">
+    {% for event in events %}
+    <div class="card h-100 shadow-sm">
+
+        <!-- Red background section -->
+        <div class="event-header">
+            <h5 class="card-title mb-1">{{ event.name }}</h5>          
+            <h6 class="card-subtitle mb-0">{{ event.location }}</h6>
+        </div>
+
+        <!-- Yellow background section -->
+        <div class="event-body">
+            <hr class="m-0 mb-2" style="border-top: 2px solid #fff;">
+
+            <p class="card-text">
+                <strong>Starts:</strong> {{ event.start_time|date:"D, M d, P" }}<br>
+                <strong>Ends:</strong> {{ event.end_time|date:"D, M d, P" }}
+            </p>
+            <p class="card-text small flex-grow-1">{{ event.description|truncatewords:20 }}</p>
+
+            <div class="mt-auto pt-2">
+                 <a href="{% url 'event-detail' pk=event.pk %}" class="btn btn-dark w-100">View Details</a>
+            </div>
+        </div>
+
+    </div>
+    {% empty %}
+        <p>No events have been scheduled.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

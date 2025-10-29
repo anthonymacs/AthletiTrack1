@@ -1,0 +1,45 @@
+<!-- templates/core/sport_list.html -->
+{% extends "base.html" %}
+{% block title %}Manage Sports{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Sports</h1>
+    <div>
+        <a href="{% url 'sport-add' %}" class="btn btn-primary">+ Add New Sport</a>
+        <a href="{% url 'settings-dashboard' %}" class="btn btn-secondary">Back to Settings</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Sport Name</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sport in sports %}
+                    <tr>
+                        <td><strong>{{ sport.name }}</strong></td>
+                        <td class="text-end">
+                            <a href="{% url 'sport-statistics' pk=sport.pk %}" class="btn btn-sm btn-info">Manage Stats</a>
+                            <a href="{% url 'sport-edit' pk=sport.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'sport-delete' pk=sport.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center">No sports have been created yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+<!-- templates/organization/settings_dashboard.html -->
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1 class="mb-4">System Settings</h1>
+<p>Manage the core data used throughout the AthletiTrack system.</p>
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Manage Sports</h5>
+                <p class="card-text">Add, edit, or delete the sports categories available in the system.</p>
+                <a href="{% url 'sport-list' %}" class="btn btn-primary">Go to Sports</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Manage Campuses</h5>
+                <p class="card-text">Add, edit, or delete the university campuses available for teams.</p>
+                <a href="{% url 'campus-list' %}" class="btn btn-primary">Go to Campuses</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Manage Teams</h5>
+                <p class="card-text">Add, edit, or delete specific teams (combinations of sport, campus, and gender).</p>
+                <a href="{% url 'team-list' %}" class="btn btn-primary">Go to Teams</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
