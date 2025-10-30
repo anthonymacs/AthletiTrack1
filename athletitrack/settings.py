@@ -21,7 +21,10 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '.ngrok-free.app',
+    '.trycloudflare.com',
+    '.onrender.com',
 ]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",  # allow any ngrok subdomain
@@ -91,7 +94,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'athletitrack_db',
         'USER': 'root',      # Laragon's default username
-        'PASSWORD': '',      # Laragon's default password is empty
+        'PASSWORD': 'admin123456',      # Laragon's default password is empty
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
